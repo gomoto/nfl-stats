@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="nfl">
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="NFL player statistics">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>NFL Statistics</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+  <script>
+    angular.module('nfl', []);
+    angular.module('nfl')
+    .factory('weeklyStatsFactory', function($http) {
+      return {
+        get: get
+      };
+      function get(position, week) {
+        var urlBase = 'http://api.fantasy.nfl.com/v1/players/stats?format=json&statType=weekStats';
+        var urlPosition = '&position=' + position;
+        var urlWeek = '&week=' + week;
+        var url = [urlBase, urlPosition, urlWeek].join('');
+        return $http.get(url);
+      }
+    });
+    angular.module('nfl')
+    .controller('statsController', function(weeklyStatsFactory) {
+      var stats = this;
+      stats.position = 'QB';
+      stats.positions = ['QB', 'RB', 'WR', 'TE', 'DEF'];
+      stats.week = 10;
+      stats.weeks = [1,2,3,4,5,6,7,8,9,10];
+      stats.players = [];
+      stats.change = change;
+
+      activate();
+
+      function activate() {
+        change();
+      }
+
+      function change() {
+        stats.players = [];//temporarily clear list of players
+        weeklyStatsFactory.get(stats.position, stats.week)
+        .then(function resolve(response) {
+          stats.players = response.data.players;
+        });
+      }
+    });
+  </script>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500" rel="stylesheet" type="text/css">
+  <style>
+    /*Some basic styles to get started*/
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div ng-controller="statsController as stats">
+    <select ng-options="position for position in stats.positions" ng-model="stats.position" ng-change="stats.change()"></select>
+    <select ng-options="week for week in stats.weeks" ng-model="stats.week" ng-change="stats.change()"></select>
+    <ol>
+      <li ng-repeat="player in stats.players">
+        {{player.name}} ({{player.teamAbbr}}) {{player.stats}}
+      </li>
+    </ol>
+  </div>
+</body>
+</html>
