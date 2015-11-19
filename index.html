@@ -64,11 +64,22 @@
   <div ng-controller="statsController as stats">
     <select ng-options="position for position in stats.positions" ng-model="stats.position" ng-change="stats.change()"></select>
     <select ng-options="week for week in stats.weeks" ng-model="stats.week" ng-change="stats.change()"></select>
-    <ol>
-      <li ng-repeat="player in stats.players">
-        {{player.name}} ({{player.teamAbbr}}) {{player.stats}}
-      </li>
-    </ol>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Team</th>
+          <th>Stats</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="player in stats.players">
+          <td>{{player.name}}</td>
+          <td>{{player.teamAbbr}}</td>
+          <td>{{player.stats}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </body>
 </html>
