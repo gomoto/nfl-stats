@@ -49,18 +49,38 @@
             player.stats.passTouchdowns = playerData.stats['6'] || '0';
             player.stats.passYards = playerData.stats['5'] || '0';
             player.stats.interceptions = playerData.stats['7'] || '0';
-            player.stats.passYardsBonus = playerData.stats['5'] >= 300;
             player.stats.rushTouchdowns = playerData.stats['15'] || '0';
             player.stats.rushYards = playerData.stats['14'] || '0';
-            player.stats.rushYardsBonus = playerData.stats['14'] >= 100;
             player.stats.recTouchdowns = playerData.stats['22'] || '0';
             player.stats.recYards = playerData.stats['21'] || '0';
             player.stats.rec = playerData.stats['20'] || '0';
-            player.stats.recYardsBonus = playerData.stats['21'] >= 100;
             player.stats.krTouchdowns = playerData.stats['28'] || '0';
             player.stats.fumbles = playerData.stats['30'] || '0';
             player.stats.twoPointConversions = playerData.stats['32'] || '0';
+            //Parse stats into integers
+            for (var stat in player.stats) {
+              player.stats[stat] = parseInt(player.stats[stat]);
+            }
             stats.players.push(player);
+            //Calculate DrafKings points
+            player.draftkingsPoints = (
+                player.stats.passTouchdowns * 4
+              + player.stats.passYards * 0.04
+              +(player.stats.passYards >= 300 ? 3 : 0)
+              - player.stats.interceptions
+              + player.stats.rushYards * 0.1
+              + player.stats.rushTouchdowns * 6
+              +(player.stats.rushYards >= 100 ? 3 : 0)
+              + player.stats.recYards * 0.1
+              + player.stats.rec
+              + player.stats.recTouchdowns * 6
+              +(player.stats.recYards >= 100 ? 3 : 0)
+              + player.stats.krTouchdowns * 6
+              - player.stats.fumbles
+              + player.stats.twoPointConversions * 2
+            );
+            //Round to one-decimal string
+            player.draftkingsPoints = player.draftkingsPoints.toFixed(1);
           });
         });
       }
@@ -139,17 +159,15 @@
         <tr>
           <th>Name</th>
           <th>Team</th>
+          <th>DraftKings</th>
           <th>PassTD</th>
           <th>PassYd</th>
-          <th>300PassYd</th>
           <th>Int</th>
           <th>RushTD</th>
           <th>RushYd</th>
-          <th>100RushYd</th>
           <th>RecTD</th>
           <th>RecYd</th>
           <th>Rec</th>
-          <th>100RecYd</th>
           <th>KickRetTD</th>
           <th>Fum</th>
           <th>2PT</th>
@@ -159,17 +177,15 @@
         <tr ng-repeat="player in stats.players">
           <td ng-bind="player.name"></td>
           <td ng-bind="player.team"></td>
+          <td ng-bind="player.draftkingsPoints"></td>
           <td ng-bind="player.stats.passTouchdowns"></td>
           <td ng-bind="player.stats.passYards"></td>
-          <td ng-bind="player.stats.passYardsBonus"></td>
           <td ng-bind="player.stats.interceptions"></td>
           <td ng-bind="player.stats.rushTouchdowns"></td>
           <td ng-bind="player.stats.rushYards"></td>
-          <td ng-bind="player.stats.rushYardsBonus"></td>
           <td ng-bind="player.stats.recTouchdowns"></td>
           <td ng-bind="player.stats.recYards"></td>
           <td ng-bind="player.stats.rec"></td>
-          <td ng-bind="player.stats.recYardsBonus"></td>
           <td ng-bind="player.stats.krTouchdowns"></td>
           <td ng-bind="player.stats.fumbles"></td>
           <td ng-bind="player.stats.twoPointConversions"></td>
