@@ -41,7 +41,27 @@
         stats.players = [];//temporarily clear list of players
         weeklyStatsFactory.get(stats.position, stats.week)
         .then(function resolve(response) {
-          stats.players = response.data.players;
+          response.data.players.forEach(function(playerData) {
+            var player = {};
+            player.name = playerData.name;
+            player.team = playerData.teamAbbr;
+            player.stats = {};
+            player.stats.passTouchdowns = playerData.stats['6'] || '0';
+            player.stats.passYards = playerData.stats['5'] || '0';
+            player.stats.interceptions = playerData.stats['7'] || '0';
+            player.stats.passYardsBonus = playerData.stats['5'] >= 300;
+            player.stats.rushTouchdowns = playerData.stats['15'] || '0';
+            player.stats.rushYards = playerData.stats['14'] || '0';
+            player.stats.rushYardsBonus = playerData.stats['14'] >= 100;
+            player.stats.recTouchdowns = playerData.stats['22'] || '0';
+            player.stats.recYards = playerData.stats['21'] || '0';
+            player.stats.rec = playerData.stats['20'] || '0';
+            player.stats.recYardsBonus = playerData.stats['21'] >= 100;
+            player.stats.krTouchdowns = playerData.stats['28'] || '0';
+            player.stats.fumbles = playerData.stats['30'] || '0';
+            player.stats.twoPointConversions = playerData.stats['32'] || '0';
+            stats.players.push(player);
+          });
         });
       }
     });
@@ -103,14 +123,40 @@
         <tr>
           <th>Name</th>
           <th>Team</th>
-          <th>Stats</th>
+          <th>PassTD</th>
+          <th>PassYd</th>
+          <th>300PassYd</th>
+          <th>Int</th>
+          <th>RushTD</th>
+          <th>RushYd</th>
+          <th>100RushYd</th>
+          <th>RecTD</th>
+          <th>RecYd</th>
+          <th>Rec</th>
+          <th>100RecYd</th>
+          <th>KickRetTD</th>
+          <th>Fum</th>
+          <th>2PT</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="player in stats.players">
           <td ng-bind="player.name"></td>
-          <td ng-bind="player.teamAbbr"></td>
-          <td ng-bind="player.stats"></td>
+          <td ng-bind="player.team"></td>
+          <td ng-bind="player.stats.passTouchdowns"></td>
+          <td ng-bind="player.stats.passYards"></td>
+          <td ng-bind="player.stats.passYardsBonus"></td>
+          <td ng-bind="player.stats.interceptions"></td>
+          <td ng-bind="player.stats.rushTouchdowns"></td>
+          <td ng-bind="player.stats.rushYards"></td>
+          <td ng-bind="player.stats.rushYardsBonus"></td>
+          <td ng-bind="player.stats.recTouchdowns"></td>
+          <td ng-bind="player.stats.recYards"></td>
+          <td ng-bind="player.stats.rec"></td>
+          <td ng-bind="player.stats.recYardsBonus"></td>
+          <td ng-bind="player.stats.krTouchdowns"></td>
+          <td ng-bind="player.stats.fumbles"></td>
+          <td ng-bind="player.stats.twoPointConversions"></td>
         </tr>
       </tbody>
     </table>
