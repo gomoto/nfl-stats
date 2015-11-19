@@ -30,6 +30,7 @@
       stats.weeks = [1,2,3,4,5,6,7,8,9,10];
       stats.players = [];
       stats.change = change;
+      stats.sort = sort;
 
       activate();
 
@@ -45,44 +46,51 @@
             var player = {};
             player.name = playerData.name;
             player.team = playerData.teamAbbr;
-            player.stats = {};
-            player.stats.passTouchdowns = playerData.stats['6'] || '0';
-            player.stats.passYards = playerData.stats['5'] || '0';
-            player.stats.interceptions = playerData.stats['7'] || '0';
-            player.stats.rushTouchdowns = playerData.stats['15'] || '0';
-            player.stats.rushYards = playerData.stats['14'] || '0';
-            player.stats.recTouchdowns = playerData.stats['22'] || '0';
-            player.stats.recYards = playerData.stats['21'] || '0';
-            player.stats.rec = playerData.stats['20'] || '0';
-            player.stats.krTouchdowns = playerData.stats['28'] || '0';
-            player.stats.fumbles = playerData.stats['30'] || '0';
-            player.stats.twoPointConversions = playerData.stats['32'] || '0';
-            //Parse stats into integers
-            for (var stat in player.stats) {
-              player.stats[stat] = parseInt(player.stats[stat]);
-            }
-            stats.players.push(player);
+            player.passTouchdowns = parseInt(playerData.stats['6'] || '0');
+            player.passYards = parseInt(playerData.stats['5'] || '0');
+            player.interceptions = parseInt(playerData.stats['7'] || '0');
+            player.rushTouchdowns = parseInt(playerData.stats['15'] || '0');
+            player.rushYards = parseInt(playerData.stats['14'] || '0');
+            player.recTouchdowns = parseInt(playerData.stats['22'] || '0');
+            player.recYards = parseInt(playerData.stats['21'] || '0');
+            player.rec = parseInt(playerData.stats['20'] || '0');
+            player.krTouchdowns = parseInt(playerData.stats['28'] || '0');
+            player.fumbles = parseInt(playerData.stats['30'] || '0');
+            player.twoPointConversions = parseInt(playerData.stats['32'] || '0');
             //Calculate DrafKings points
             player.draftkingsPoints = (
-                player.stats.passTouchdowns * 4
-              + player.stats.passYards * 0.04
-              +(player.stats.passYards >= 300 ? 3 : 0)
-              - player.stats.interceptions
-              + player.stats.rushYards * 0.1
-              + player.stats.rushTouchdowns * 6
-              +(player.stats.rushYards >= 100 ? 3 : 0)
-              + player.stats.recYards * 0.1
-              + player.stats.rec
-              + player.stats.recTouchdowns * 6
-              +(player.stats.recYards >= 100 ? 3 : 0)
-              + player.stats.krTouchdowns * 6
-              - player.stats.fumbles
-              + player.stats.twoPointConversions * 2
+                player.passTouchdowns * 4
+              + player.passYards * 0.04
+              +(player.passYards >= 300 ? 3 : 0)
+              - player.interceptions
+              + player.rushYards * 0.1
+              + player.rushTouchdowns * 6
+              +(player.rushYards >= 100 ? 3 : 0)
+              + player.recYards * 0.1
+              + player.rec
+              + player.recTouchdowns * 6
+              +(player.recYards >= 100 ? 3 : 0)
+              + player.krTouchdowns * 6
+              - player.fumbles
+              + player.twoPointConversions * 2
             );
-            //Round to one-decimal string
-            player.draftkingsPoints = player.draftkingsPoints.toFixed(1);
+            stats.players.push(player);
           });
         });
+      }
+
+      function sort(field) {
+        //sort in place
+        stats.players.sort(comparePlayers);
+        function comparePlayers(playerA, playerB) {
+          if (playerA[field] < playerB[field]) {
+            return 1;
+          }
+          if (playerA[field] > playerB[field]) {
+            return -1;
+          }
+          return 0;
+        }
       }
     });
   </script>
@@ -137,6 +145,7 @@
     }
     thead th {
       padding: 0 4px;
+      cursor: pointer;
     }
     tbody {
       line-height: 24px;
@@ -157,38 +166,38 @@
     <table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Team</th>
-          <th>DraftKings</th>
-          <th>PassTD</th>
-          <th>PassYd</th>
-          <th>Int</th>
-          <th>RushTD</th>
-          <th>RushYd</th>
-          <th>RecTD</th>
-          <th>RecYd</th>
-          <th>Rec</th>
-          <th>KickRetTD</th>
-          <th>Fum</th>
-          <th>2PT</th>
+          <th ng-click="stats.sort('name')">Name</th>
+          <th ng-click="stats.sort('team')">Team</th>
+          <th ng-click="stats.sort('draftkingsPoints')">DraftKings</th>
+          <th ng-click="stats.sort('passTouchdowns')">PassTD</th>
+          <th ng-click="stats.sort('passYards')">PassYd</th>
+          <th ng-click="stats.sort('interceptions')">Int</th>
+          <th ng-click="stats.sort('rushTouchdowns')">RushTD</th>
+          <th ng-click="stats.sort('rushYards')">RushYd</th>
+          <th ng-click="stats.sort('recTouchdowns')">RecTD</th>
+          <th ng-click="stats.sort('recYards')">RecYd</th>
+          <th ng-click="stats.sort('rec')">Rec</th>
+          <th ng-click="stats.sort('krTouchdowns')">KickRetTD</th>
+          <th ng-click="stats.sort('fumbles')">Fum</th>
+          <th ng-click="stats.sort('twoPointConversions')">2PT</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="player in stats.players">
           <td ng-bind="player.name"></td>
           <td ng-bind="player.team"></td>
-          <td ng-bind="player.draftkingsPoints"></td>
-          <td ng-bind="player.stats.passTouchdowns"></td>
-          <td ng-bind="player.stats.passYards"></td>
-          <td ng-bind="player.stats.interceptions"></td>
-          <td ng-bind="player.stats.rushTouchdowns"></td>
-          <td ng-bind="player.stats.rushYards"></td>
-          <td ng-bind="player.stats.recTouchdowns"></td>
-          <td ng-bind="player.stats.recYards"></td>
-          <td ng-bind="player.stats.rec"></td>
-          <td ng-bind="player.stats.krTouchdowns"></td>
-          <td ng-bind="player.stats.fumbles"></td>
-          <td ng-bind="player.stats.twoPointConversions"></td>
+          <td ng-bind="player.draftkingsPoints.toFixed(1)"></td>
+          <td ng-bind="player.passTouchdowns"></td>
+          <td ng-bind="player.passYards"></td>
+          <td ng-bind="player.interceptions"></td>
+          <td ng-bind="player.rushTouchdowns"></td>
+          <td ng-bind="player.rushYards"></td>
+          <td ng-bind="player.recTouchdowns"></td>
+          <td ng-bind="player.recYards"></td>
+          <td ng-bind="player.rec"></td>
+          <td ng-bind="player.krTouchdowns"></td>
+          <td ng-bind="player.fumbles"></td>
+          <td ng-bind="player.twoPointConversions"></td>
         </tr>
       </tbody>
     </table>
